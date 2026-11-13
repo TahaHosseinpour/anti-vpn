@@ -12,7 +12,25 @@
   <a href="README.md">English</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.0.0/AntiVPN-Setup-1.0.0.exe"><b>⬇ دانلود برای ویندوز (نسخه‌ی ۱.۰.۰)</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/latest">همه‌ی نسخه‌ها</a>
+</p>
+
+<p align="center"><img src="docs/screenshot.png" alt="Anti VPN" width="860" /></p>
+
 ---
+
+## دانلود
+
+| سیستم‌عامل | فایل |
+| --- | --- |
+| ویندوز ۱۰ و ۱۱ (۶۴ بیتی) | [AntiVPN-Setup-1.0.0.exe](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.0.0/AntiVPN-Setup-1.0.0.exe) |
+
+۱. فایل نصبی را دانلود و اجرا کنید. برنامه دسترسی Administrator می‌خواهد، چون تونل کل سیستم و کیل‌سوییچ به آن نیاز دارند.
+
+۲. فایل نصبی هنوز امضای دیجیتال ندارد، برای همین ممکن است Windows SmartScreen هشدار بدهد. روی **More info** و بعد **Run anyway** بزنید.
+
+۳. Anti VPN را باز کنید، یک کانفیگ اضافه کنید (هر جای برنامه <kbd>Ctrl</kbd>+<kbd>V</kbd> هم کار می‌کند) و **Quick connect** را بزنید.
 
 ## امکانات
 

@@ -10,7 +10,23 @@
   <a href="README.fa.md">فارسی</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.0.0/AntiVPN-Setup-1.0.0.exe"><b>⬇ Download for Windows (v1.0.0)</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/latest">All releases</a>
+</p>
+
+<p align="center"><img src="docs/screenshot.png" alt="Anti VPN screenshot" width="860" /></p>
+
 ---
+
+## Download
+
+| Platform | File |
+| --- | --- |
+| Windows 10/11 (x64) | [AntiVPN-Setup-1.0.0.exe](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.0.0/AntiVPN-Setup-1.0.0.exe) |
+
+1. Download and run the installer. It asks for administrator permission, which the full-system VPN and Kill Switch need.
+2. The installer is not code-signed yet, so Windows SmartScreen may warn you. Click **More info → Run anyway**.
+3. Open Anti VPN, add a config (<kbd>Ctrl</kbd>+<kbd>V</kbd> works anywhere), and press **Quick connect**.
 
 ## Features
 
