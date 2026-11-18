@@ -7,13 +7,13 @@
 <h1 align="center">Anti VPN</h1>
 
 <p align="center">
-  کلاینت VPN دسکتاپ و مینیمال برای ویندوز، با پشتیبانی از کانفیگ‌های <b>V2Ray</b>، <b>SSH</b>، <b>WireGuard</b> و <b>OpenVPN</b> و یک کیل‌سوییچ واقعی.
+  کلاینت VPN دسکتاپ و مینیمال برای ویندوز و مک، با پشتیبانی از کانفیگ‌های <b>V2Ray</b>، <b>SSH</b>، <b>WireGuard</b> و <b>OpenVPN</b> و یک کیل‌سوییچ واقعی.
   <br />
   <a href="README.md">English</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.0.0/AntiVPN-Setup-1.0.0.exe"><b>⬇ دانلود برای ویندوز (نسخه‌ی ۱.۰.۰)</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/latest">همه‌ی نسخه‌ها</a>
+  <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-Setup-1.1.0.exe"><b>⬇ ویندوز</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-1.1.0-mac-arm64.dmg"><b>⬇ مک (Apple Silicon)</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-1.1.0-mac-x64.dmg"><b>⬇ مک (Intel)</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/latest">همه‌ی نسخه‌ها</a>
 </p>
 
 <p align="center"><img src="docs/screenshot.png" alt="Anti VPN" width="860" /></p>
@@ -24,13 +24,39 @@
 
 | سیستم‌عامل | فایل |
 | --- | --- |
-| ویندوز ۱۰ و ۱۱ (۶۴ بیتی) | [AntiVPN-Setup-1.0.0.exe](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.0.0/AntiVPN-Setup-1.0.0.exe) |
+| ویندوز ۱۰ و ۱۱ (۶۴ بیتی) | [AntiVPN-Setup-1.1.0.exe](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-Setup-1.1.0.exe) |
+| مک‌اواس ۱۲ به بالا، Apple Silicon (‏M1 و جدیدتر) | [AntiVPN-1.1.0-mac-arm64.dmg](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-1.1.0-mac-arm64.dmg) |
+| مک‌اواس ۱۲ به بالا، Intel | [AntiVPN-1.1.0-mac-x64.dmg](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-1.1.0-mac-x64.dmg) |
+
+### ویندوز
 
 ۱. فایل نصبی را دانلود و اجرا کنید. برنامه دسترسی Administrator می‌خواهد، چون تونل کل سیستم و کیل‌سوییچ به آن نیاز دارند.
 
 ۲. فایل نصبی هنوز امضای دیجیتال ندارد، برای همین ممکن است Windows SmartScreen هشدار بدهد. روی **More info** و بعد **Run anyway** بزنید.
 
 ۳. Anti VPN را باز کنید، یک کانفیگ اضافه کنید (هر جای برنامه <kbd>Ctrl</kbd>+<kbd>V</kbd> هم کار می‌کند) و **Quick connect** را بزنید.
+
+### مک
+
+نمی‌دانید مک شما کدام است؟ از منوی اپل گزینه‌ی **About This Mac** را بزنید. اگر نوشته «Chip: Apple M…» یعنی Apple Silicon (فایل `arm64`)، و اگر نوشته «Processor: Intel» یعنی Intel (فایل `x64`).
+
+۱. فایل `.dmg` را باز کنید و **Anti VPN** را داخل پوشه‌ی **Applications** بکشید.
+
+۲. برنامه هنوز توسط اپل notarize نشده، برای همین مک بار اول جلوی اجرایش را می‌گیرد (پیغام «Anti VPN is damaged» یا «can't be opened»). یک بار **Terminal** را باز کنید و این دستور را بزنید:
+
+</div>
+
+```bash
+xattr -cr "/Applications/Anti VPN.app"
+```
+
+<div dir="rtl">
+
+بعد Anti VPN را از Applications باز کنید. (راه دیگر: یک بار برنامه را باز کنید، بعد به **System Settings ← Privacy & Security** بروید و **Open Anyway** را بزنید.)
+
+۳. یک کانفیگ اضافه کنید (هر جای برنامه <kbd>⌘</kbd>+<kbd>V</kbd> کار می‌کند) و **Quick connect** را بزنید. بار اول برنامه **دسترسی Administrator** می‌خواهد: روی **Grant permission** بزنید و رمز مک خود را وارد کنید. این کار فقط یک بار لازم است تا VPN بتواند رابط شبکه (TUN) بسازد و همه‌ی ترافیک را از خودش رد کند.
+
+برای حذف در مک: برنامه را ببندید، از Applications پاکش کنید و پوشه‌ی `~/Library/Application Support/Anti VPN` را هم پاک کنید (فایل `core/sing-box-tun` داخل آن مال root است و با `sudo rm` پاک می‌شود).
 
 ## امکانات
 
@@ -58,14 +84,14 @@
 
 ## اجرا
 
-پیش‌نیاز: ویندوز ۱۰ یا ۱۱ (۶۴ بیتی) و Node.js نسخه‌ی ۲۲ به بالا.
+پیش‌نیاز: ویندوز ۱۰ یا ۱۱ (۶۴ بیتی) یا مک‌اواس ۱۲ به بالا، و Node.js نسخه‌ی ۲۲ به بالا.
 
 </div>
 
 ```bash
 npm install          # آیکون پرچم‌ها هم کپی می‌شوند
 npm run fetch-core   # موتور sing-box را در resources/bin دانلود می‌کند
-npm run dev          # در ترمینالی که با Administrator باز شده اجرا کنید
+npm run dev          # ویندوز: در ترمینالی که با Administrator باز شده اجرا کنید
 ```
 
 <div dir="rtl">
@@ -83,6 +109,26 @@ npm run dist
 <div dir="rtl">
 
 خروجی در مسیر `release/AntiVPN-Setup-<version>.exe` ساخته می‌شود. این فایل نصبی همه‌ی چیزهای لازم را دارد (موتور sing-box، پرچم‌ها و آیکون‌ها) و موقع اجرا دسترسی Administrator می‌خواهد.
+
+روی مک، دستور `npm run dist:mac` فایل `release/AntiVPN-<version>-mac-<arch>.dmg` را برای معماری همان سیستم می‌سازد.
+
+### انتشار نسخه با GitHub Actions
+
+فایل [`.github/workflows/release.yml`](.github/workflows/release.yml) نسخه‌ی ویندوز (x64) و مک (arm64 و x64) را روی رانرهای گیت‌هاب می‌سازد و در Releases آپلود می‌کند. برای انتشار نسخه‌ی جدید، `version` را در `package.json` عوض کنید، کامیت کنید و بعد:
+
+</div>
+
+```bash
+git tag v1.2.0 && git push origin v1.2.0
+```
+
+<div dir="rtl">
+
+از تب **Actions** هم می‌شود دستی اجرایش کرد (Run workflow و وارد کردن تگ) تا یک ریلیز موجود دوباره ساخته شود.
+
+### دسترسی Administrator در مک چطور گرفته می‌شود؟
+
+خود برنامه با کاربر عادی اجرا می‌شود. بار اول که وصل می‌شوید، با پنجره‌ی استاندارد مک رمز شما را می‌پرسد و یک کپی از sing-box در `~/Library/Application Support/Anti VPN/core/sing-box-tun` می‌سازد که مالکش root است و بیت setuid دارد. فقط همین پروسه رابط TUN را می‌سازد. اگر آپدیت برنامه موتور را عوض کند، دوباره رمز را می‌پرسد.
 
 ## کیل‌سوییچ چطور کار می‌کند؟
 

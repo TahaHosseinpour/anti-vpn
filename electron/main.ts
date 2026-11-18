@@ -5,7 +5,7 @@ import { basename, extname, join, normalize } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { ImportOptions, ImportResult, LogLine, Settings, SystemInfo } from "../shared/types";
 import { isAutostartEnabled, launchedAtLogin, setAutostart } from "./autostart";
-import { getCoreInfo } from "./core";
+import { getCoreInfo, hasPrivilegedCore, installPrivilegedCore } from "./core";
 import { notifyTransition, PROTOCOL } from "./notify";
 import { toLink } from "./parsers";
 import { pingProfiles } from "./ping";
@@ -32,7 +32,10 @@ let vpn: VpnManager;
 let isAdmin = false;
 const logs: LogLine[] = [];
 
+const isMac = process.platform === "darwin";
+
 function checkAdmin(): boolean {
+  if (isMac) return hasPrivilegedCore();
   try {
     execFileSync("net", ["session"], { stdio: "ignore", windowsHide: true });
     return true;
@@ -42,7 +45,15 @@ function checkAdmin(): boolean {
 }
 
 /** Restarts the app elevated (shows the Windows UAC prompt). Keeps running if the user cancels. */
-function relaunchAsAdmin(): Promise<void> {
+async function relaunchAsAdmin(): Promise<void> {
+  if (isMac) {
+    // No restart needed on macOS: install the privileged core and carry on.
+    await installPrivilegedCore();
+    isAdmin = checkAdmin();
+    if (!isAdmin) throw new Error("RELAUNCH_CANCELLED");
+    pushLog("info", "Administrator permission granted");
+    return;
+  }
   const args = app.isPackaged ? [] : [app.getAppPath()];
   const q = (v: string) => `'${v.replace(/'/g, "''")}'`;
   const argList = args.length ? ` -ArgumentList ${args.map((a) => q(`"${a}"`)).join(",")}` : "";
@@ -93,7 +104,7 @@ function createWindow() {
     title: "Anti VPN",
     backgroundColor: titleBarColors(theme).symbolColor === "#e5e5e5" ? "#050505" : "#f5f5f5",
     titleBarStyle: "hidden",
-    titleBarOverlay: titleBarColors(theme),
+    ...(isMac ? { trafficLightPosition: { x: 14, y: 12 } } : { titleBarOverlay: titleBarColors(theme) }),
     autoHideMenuBar: true,
     icon: isDev ? join(app.getAppPath(), "build", "icon.png") : undefined,
     webPreferences: {
@@ -260,7 +271,7 @@ function registerIpc() {
     };
     store.settings.data = next;
     store.settings.save();
-    if (patch.theme && win) win.setTitleBarOverlay(titleBarColors(next.theme));
+    if (patch.theme && win && !isMac) win.setTitleBarOverlay(titleBarColors(next.theme));
     const affectsTunnel =
       JSON.stringify(prev.killSwitch) !== JSON.stringify(next.killSwitch) ||
       prev.remoteDns !== next.remoteDns ||
@@ -322,7 +333,7 @@ app.whenReady().then(async () => {
   if (!isDev) registerAppProtocol();
   registerIpc();
   createWindow();
-  pushLog("info", `Anti VPN started (${isAdmin ? "administrator" : "standard user"})`);
+  pushLog("info", `Anti VPN started on ${process.platform}-${process.arch} (${isAdmin ? "administrator" : "standard user"})`);
 
   // Launched by a notification button while the app was closed.
   const launchLink = process.argv.find((a) => a.startsWith(`${PROTOCOL}://`));

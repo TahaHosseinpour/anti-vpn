@@ -21,6 +21,7 @@ const DNS_PRESETS = [
 
 export function SettingsView() {
   const { settings, updateSettings, system } = useVpn();
+  const os = system?.platform === "darwin" ? "macOS" : "Windows";
   const [logsOpen, setLogsOpen] = useState(false);
   if (!settings) return null;
   const set = (p: Partial<Settings>) => void updateSettings(p);
@@ -30,10 +31,10 @@ export function SettingsView() {
       <section>
         <SectionHeader title="General" />
         <Card className="divide-y divide-border/70 px-5">
-          <Row title="Appearance" desc="Light, dark or follow Windows.">
+          <Row title="Appearance" desc={`Light, dark or follow ${os}.`}>
             <Segmented value={settings.theme} options={["light", "dark", "system"]} onChange={(v) => set({ theme: v as Settings["theme"] })} />
           </Row>
-          <Row title="Launch at startup" desc="Open Anti VPN automatically when Windows starts.">
+          <Row title="Launch at startup" desc={`Open Anti VPN automatically when ${os} starts.`}>
             <Switch
               checked={settings.launchAtStartup}
               onCheckedChange={async (v) => {
@@ -46,7 +47,7 @@ export function SettingsView() {
               }}
             />
           </Row>
-          <Row title="System notifications" desc="Alert me in Windows when the VPN connects, drops or reconnects while Anti VPN is in the background.">
+          <Row title="System notifications" desc={`Alert me in ${os} when the VPN connects, drops or reconnects while Anti VPN is in the background.`}>
             <Switch checked={settings.systemNotifications} onCheckedChange={(v) => set({ systemNotifications: v })} />
           </Row>
           <Row title="Connect on launch" desc="Reconnect to the last used config when Anti VPN starts.">
@@ -111,7 +112,7 @@ export function SettingsView() {
         <SectionHeader title="System" />
         <Card className="divide-y divide-border/70 px-5">
           <Row title="Administrator" desc="Required for full-system (TUN) mode and the Kill Switch.">
-            <StatusPill ok={!!system?.isAdmin} okText="Running as admin" badText="Not elevated" />
+            <StatusPill ok={!!system?.isAdmin} okText={system?.platform === "darwin" ? "Granted" : "Running as admin"} badText="Not elevated" />
           </Row>
           <Row title="VPN engine" desc={system?.core.path ?? ""}>
             <StatusPill ok={!!system?.core.found} okText={`sing-box ${system?.core.version ?? ""}`} badText="Missing" />

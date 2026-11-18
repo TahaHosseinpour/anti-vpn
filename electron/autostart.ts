@@ -22,11 +22,17 @@ function launchCommand(): string {
 }
 
 export async function isAutostartEnabled(): Promise<boolean> {
+  // macOS: a plain login item works, the tunnel's privileges live in the setuid core.
+  if (process.platform === "darwin") return app.getLoginItemSettings().openAtLogin;
   if (process.platform !== "win32") return false;
   return (await schtasks(["/Query", "/TN", TASK])).ok;
 }
 
 export async function setAutostart(enabled: boolean): Promise<void> {
+  if (process.platform === "darwin") {
+    app.setLoginItemSettings({ openAtLogin: enabled, args: ["--autostart"] });
+    return;
+  }
   if (process.platform !== "win32") return;
   if (enabled) {
     const r = await schtasks(["/Create", "/TN", TASK, "/TR", launchCommand(), "/SC", "ONLOGON", "/RL", "HIGHEST", "/F"]);

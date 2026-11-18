@@ -9,7 +9,8 @@ import { AppDialog, DialogButton } from "./app-dialog";
 
 /** Renders whichever app dialog is currently requested through the context. */
 export function DialogHost() {
-  const { dialog, setDialog, connect, setView, profiles } = useVpn();
+  const { dialog, setDialog, connect, setView, profiles, system, refreshSystem } = useVpn();
+  const isMac = system?.platform === "darwin";
   const [busy, setBusy] = useState(false);
   const close = () => setDialog(null);
 
@@ -25,8 +26,12 @@ export function DialogHost() {
         title="Administrator permission needed"
         description={
           <>
-            To route all traffic through the VPN and keep the Kill Switch airtight, Anti VPN needs to run as administrator.
-            <span className="mt-2 block text-xs">Windows will ask you to confirm on the next screen.</span>
+            {isMac
+              ? "To route all traffic through the VPN and keep the Kill Switch airtight, Anti VPN needs administrator permission. You only need to allow this once."
+              : "To route all traffic through the VPN and keep the Kill Switch airtight, Anti VPN needs to run as administrator."}
+            <span className="mt-2 block text-xs">
+              {isMac ? "macOS will ask for your password on the next screen." : "Windows will ask you to confirm on the next screen."}
+            </span>
           </>
         }
       >
@@ -36,6 +41,13 @@ export function DialogHost() {
             setBusy(true);
             try {
               await api().relaunchAsAdmin();
+              if (isMac) {
+                // macOS grants the permission in place, no restart.
+                await refreshSystem();
+                setBusy(false);
+                close();
+                toast.success("Permission granted", { description: "You can connect now." });
+              }
             } catch {
               toast.error("Permission was not granted", { description: "Anti VPN can't connect without administrator rights." });
               setBusy(false);
@@ -43,7 +55,7 @@ export function DialogHost() {
           }}
         >
           {busy ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
-          {busy ? "Waiting for Windows…" : "Restart as administrator"}
+          {busy ? (isMac ? "Waiting for macOS…" : "Waiting for Windows…") : isMac ? "Grant permission" : "Restart as administrator"}
         </DialogButton>
         <DialogButton variant="ghost" onClick={close}>
           Not now
@@ -61,7 +73,7 @@ export function DialogHost() {
         icon={<Cpu />}
         title="VPN engine is missing"
         description="The connection engine (sing-box) was not found. Reinstall Anti VPN to restore it."
-        detail="Expected at resources/bin/sing-box.exe. During development run: npm run fetch-core"
+        detail="Expected in resources/bin (sing-box). During development run: npm run fetch-core"
       >
         <DialogButton onClick={close}>OK</DialogButton>
       </AppDialog>

@@ -10,7 +10,7 @@ import type {
   TrafficSnapshot,
   VpnState,
 } from "../shared/types";
-import { ClashApi, CoreProcess, corePath, freePort, randomSecret } from "./core";
+import { ClashApi, CoreProcess, corePath, freePort, randomSecret, tunnelCorePath } from "./core";
 import { buildBlockerConfig, buildTunnelConfig, PROXY_TAG } from "./singbox-config";
 import { Store, todayKey } from "./store";
 
@@ -29,7 +29,9 @@ export function friendlyError(raw: string): string {
   if (/refused/.test(r)) return "The server refused the connection.";
   if (/no such host|lookup|nxdomain/.test(r)) return "The server address could not be found.";
   if (/reset by peer|eof|broken pipe/.test(r)) return "The connection was interrupted by the network.";
-  if (/access is denied|permission|wintun|administrator/.test(r)) return "Windows blocked the network adapter. Run Anti VPN as administrator.";
+  if (/access is denied|permission|wintun|administrator|operation not permitted/.test(r)) return process.platform === "darwin"
+      ? "macOS blocked the network adapter. Grant Anti VPN administrator permission."
+      : "Windows blocked the network adapter. Run Anti VPN as administrator.";
   return "Could not establish the VPN connection.";
 }
 
@@ -197,7 +199,7 @@ export class VpnManager extends EventEmitter {
     const opts = { clashPort: port, clashSecret: secret, logLevel: "warn" };
     const config = mode === "tunnel" && profile ? buildTunnelConfig(profile, this.settings, opts) : buildBlockerConfig(this.settings, opts);
     const proc = new CoreProcess({
-      exe: corePath(),
+      exe: tunnelCorePath(),
       name: mode,
       config,
       onLog: (l) => this.log(/FATAL|ERROR/.test(l) ? "error" : /WARN/.test(l) ? "warn" : "info", l),

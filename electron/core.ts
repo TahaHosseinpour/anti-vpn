@@ -14,8 +14,49 @@ export function binDir(): string {
   return app.isPackaged ? join(process.resourcesPath, "bin") : join(app.getAppPath(), "resources", "bin");
 }
 
+const isMac = process.platform === "darwin";
+
 export function corePath(): string {
-  return join(binDir(), "sing-box.exe");
+  return join(binDir(), process.platform === "win32" ? "sing-box.exe" : "sing-box");
+}
+
+/**
+ * macOS: creating the TUN interface needs root, but the app itself runs as the user.
+ * After the user approves once (admin password), a copy of the core is made root-owned
+ * with the setuid bit, so the tunnel can start without running the whole app as root.
+ */
+export function privilegedCorePath(): string {
+  return join(workDir(), "sing-box-tun");
+}
+
+/** The binary that runs the tunnel (TUN needs elevated rights). */
+export function tunnelCorePath(): string {
+  return isMac ? privilegedCorePath() : corePath();
+}
+
+/** macOS: true when the setuid-root core copy exists and matches the bundled core. */
+export function hasPrivilegedCore(): boolean {
+  try {
+    const st = statSync(privilegedCorePath());
+    return st.uid === 0 && (st.mode & 0o4000) !== 0 && st.size === statSync(corePath()).size;
+  } catch {
+    return false;
+  }
+}
+
+/** macOS: asks for the admin password and installs the setuid-root core copy. */
+export function installPrivilegedCore(): Promise<void> {
+  const sh = (v: string) => `'${v.replace(/'/g, "'\\''")}'`;
+  const src = corePath();
+  const dst = privilegedCorePath();
+  const script = `rm -f ${sh(dst)} && cp ${sh(src)} ${sh(dst)} && chown root:wheel ${sh(dst)} && chmod 4755 ${sh(dst)} && (xattr -c ${sh(dst)} || true)`;
+  const osa = `do shell script "${script.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}" with administrator privileges with prompt "Anti VPN needs permission to route all traffic through the VPN."`;
+  return new Promise((resolve, reject) => {
+    execFile("osascript", ["-e", osa], (err, _out, stderr) => {
+      if (err) return reject(new Error(/-128|cancel/i.test(stderr) ? "RELAUNCH_CANCELLED" : stderr.trim() || String(err)));
+      resolve();
+    });
+  });
 }
 
 export function workDir(): string {

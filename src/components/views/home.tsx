@@ -200,7 +200,10 @@ function Banner() {
   let b: { title: string; text: string; danger?: boolean; icon?: React.ReactNode; onClick?: () => void } | null = null;
   if (system && !system.core.found) b = { title: "VPN engine not found", text: "Reinstall Anti VPN to restore the connection engine.", danger: true, onClick: () => setDialog({ kind: "core" }) };
   else if (system && !system.isAdmin)
-    b = { title: "Administrator permission needed", text: "Click to restart Anti VPN as administrator.", onClick: () => setDialog({ kind: "admin" }) };
+    b = {
+      title: "Administrator permission needed",
+      text: system.platform === "darwin" ? "Click to allow Anti VPN to route all traffic." : "Click to restart Anti VPN as administrator.",
+      onClick: () => setDialog({ kind: "admin" }) };
   else if (!online) b = { title: "No internet connection", text: "Check your network. Anti VPN will connect once you're back online.", icon: <WifiOff className="size-4 text-warning" /> };
   if (!b) return null;
   return (

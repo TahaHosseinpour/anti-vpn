@@ -6,8 +6,9 @@ import type { Profile, Settings } from "../shared/types";
 type Json = Record<string, unknown>;
 
 export const PROXY_TAG = "proxy";
-export const PINGER_EXE = "antivpn-pinger.exe";
-export const TUN_NAME = "AntiVPN";
+export const PINGER_EXE = process.platform === "win32" ? "antivpn-pinger.exe" : "antivpn-pinger";
+/** macOS only accepts utunN names, so let sing-box pick one there. */
+export const TUN_NAME = process.platform === "darwin" ? undefined : "AntiVPN";
 
 export interface ParsedExceptions {
   domains: string[];

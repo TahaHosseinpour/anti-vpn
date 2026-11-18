@@ -37,6 +37,7 @@ interface Ctx {
   search: string;
   setSearch: (s: string) => void;
   system: SystemInfo | null;
+  refreshSystem: () => Promise<void>;
   profiles: Profile[];
   subscriptions: Subscription[];
   refreshSubscriptions: () => Promise<void>;
@@ -255,6 +256,10 @@ export function VpnProvider({ children }: { children: React.ReactNode }) {
     void api().listSubscriptions().then(setSubscriptions);
   }, []);
 
+  const refreshSystem = useCallback(async () => {
+    setSystem(await api().getSystemInfo());
+  }, []);
+
   const value: Ctx = {
     ready,
     view,
@@ -262,6 +267,7 @@ export function VpnProvider({ children }: { children: React.ReactNode }) {
     search,
     setSearch,
     system,
+    refreshSystem,
     profiles,
     subscriptions,
     refreshSubscriptions,

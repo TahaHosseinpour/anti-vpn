@@ -5,13 +5,13 @@
 <h1 align="center">Anti VPN</h1>
 
 <p align="center">
-  A minimal Windows desktop VPN client for <b>V2Ray</b>, <b>SSH</b>, <b>WireGuard</b> and <b>OpenVPN</b> configs, with a real Kill Switch.
+  A minimal desktop VPN client for Windows and macOS for <b>V2Ray</b>, <b>SSH</b>, <b>WireGuard</b> and <b>OpenVPN</b> configs, with a real Kill Switch.
   <br />
   <a href="README.fa.md">فارسی</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.0.0/AntiVPN-Setup-1.0.0.exe"><b>⬇ Download for Windows (v1.0.0)</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/latest">All releases</a>
+  <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-Setup-1.1.0.exe"><b>⬇ Windows</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-1.1.0-mac-arm64.dmg"><b>⬇ macOS (Apple Silicon)</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-1.1.0-mac-x64.dmg"><b>⬇ macOS (Intel)</b></a> · <a href="https://github.com/TahaHosseinpour/anti-vpn/releases/latest">All releases</a>
 </p>
 
 <p align="center"><img src="docs/screenshot.png" alt="Anti VPN screenshot" width="860" /></p>
@@ -22,11 +22,29 @@
 
 | Platform | File |
 | --- | --- |
-| Windows 10/11 (x64) | [AntiVPN-Setup-1.0.0.exe](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.0.0/AntiVPN-Setup-1.0.0.exe) |
+| Windows 10/11 (x64) | [AntiVPN-Setup-1.1.0.exe](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-Setup-1.1.0.exe) |
+| macOS 12+ Apple Silicon (M1 and later) | [AntiVPN-1.1.0-mac-arm64.dmg](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-1.1.0-mac-arm64.dmg) |
+| macOS 12+ Intel | [AntiVPN-1.1.0-mac-x64.dmg](https://github.com/TahaHosseinpour/anti-vpn/releases/download/v1.1.0/AntiVPN-1.1.0-mac-x64.dmg) |
+
+### Windows
 
 1. Download and run the installer. It asks for administrator permission, which the full-system VPN and Kill Switch need.
 2. The installer is not code-signed yet, so Windows SmartScreen may warn you. Click **More info → Run anyway**.
 3. Open Anti VPN, add a config (<kbd>Ctrl</kbd>+<kbd>V</kbd> works anywhere), and press **Quick connect**.
+
+### macOS
+
+Not sure which Mac you have? Open the Apple menu → **About This Mac**. "Chip: Apple M…" means Apple Silicon (`arm64`); "Processor: Intel" means Intel (`x64`).
+
+1. Open the `.dmg` and drag **Anti VPN** into **Applications**.
+2. The app is not notarized by Apple yet, so macOS blocks the first launch ("Anti VPN is damaged" or "can't be opened"). Open **Terminal** and run this once:
+   ```bash
+   xattr -cr "/Applications/Anti VPN.app"
+   ```
+   Then open Anti VPN from Applications. (Or: try to open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway**.)
+3. Add a config (<kbd>⌘</kbd>+<kbd>V</kbd> works anywhere) and press **Quick connect**. The first time, Anti VPN asks for **administrator permission**: click **Grant permission** and enter your Mac password. You only do this once. It lets the VPN create its network interface (TUN) and route all traffic.
+
+To uninstall on macOS, quit the app, delete it from Applications, and remove `~/Library/Application Support/Anti VPN` (the `core/sing-box-tun` file inside is owned by root, so use `sudo rm`).
 
 ## Features
 
@@ -62,12 +80,12 @@ build/      app / installer icons
 
 ## Getting started
 
-Requirements: Windows 10/11 x64 and Node.js 22+.
+Requirements: Windows 10/11 x64 or macOS 12+, and Node.js 22+.
 
 ```bash
 npm install          # also copies the flag icons
 npm run fetch-core   # downloads sing-box into resources/bin
-npm run dev          # run from an Administrator terminal (TUN needs admin)
+npm run dev          # Windows: run from an Administrator terminal (TUN needs admin)
 ```
 
 The renderer also runs in a normal browser at `http://localhost:3123` with mock data, which is handy for UI work.
@@ -79,6 +97,22 @@ npm run dist
 ```
 
 This produces `release/AntiVPN-Setup-<version>.exe`. The installer bundles everything (the sing-box engine, flags and icons) and asks for administrator rights.
+
+On a Mac, `npm run dist:mac` builds `release/AntiVPN-<version>-mac-<arch>.dmg` for the current architecture.
+
+### Releases (GitHub Actions)
+
+[`.github/workflows/release.yml`](.github/workflows/release.yml) builds Windows (x64) and macOS (arm64 + x64) on GitHub runners and uploads the files to a GitHub release. To publish a version, bump `version` in `package.json`, commit, then:
+
+```bash
+git tag v1.2.0 && git push origin v1.2.0
+```
+
+You can also run it from the **Actions** tab (Run workflow → enter a tag) to rebuild an existing release.
+
+### How macOS gets admin rights
+
+The app runs as your user. On the first connect it asks for your password with the standard macOS prompt, then makes a copy of sing-box at `~/Library/Application Support/Anti VPN/core/sing-box-tun` that is owned by root and has the setuid bit. Only that process creates the TUN interface. If an update changes the engine, the app asks again.
 
 ## How the Kill Switch works
 
